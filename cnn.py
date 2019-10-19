@@ -8,58 +8,31 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-# path_train = 'Dataset/train'
-# path_val = 'Dataset/validation'
-#
-# train_beau_dir = os.path.join(train_dir, 'beau')  # directory with our training cat pictures
-# train_clement_dir = os.path.join(train_dir, 'clement')  # directory with our training dog pictures
-# validation_beau_dir = os.path.join(validation_dir, 'beau')  # directory with our validation cat pictures
-# validation_clement_dir = os.path.join(validation_dir, 'clement')  # directory with our validation dog pictures
-#
-# num_beau_tr = len(os.listdir(train_beau_dir))
-# num_clement_tr = len(os.listdir(train_clement_dir))
-#
-# num_beau_val = len(os.listdir(validation_beau_dir))
-# num_clement_val = len(os.listdir(validation_clement_dir))
-#
-# total_train = num_beau_tr + num_clement_tr
-# total_val = num_beau_val + num_clement_val
+path = "dataset/"
 
-PATH = "Dataset/"
-
-train_dir = os.path.join(PATH, 'train')
-validation_dir = os.path.join(PATH, 'validation')
-
-batch_size = 1
+batch_size = 32
 epochs = 15
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 
-train_image_generator = ImageDataGenerator(rescale=1./255) # Generator for our training data
-validation_image_generator = ImageDataGenerator(rescale=1./255) # Generator for our validation data
+image_generator = ImageDataGenerator(rescale=1./255,validation_split=0.3,rotation_range=45,height_shift_range=.15,horizontal_flip=True,zoom_range=0.5) # Generator for our training data
 
-train_data_gen = train_image_generator.flow_from_directory(batch_size=batch_size,
-                                                           directory=train_dir,
+train_data_gen = image_generator.flow_from_directory(batch_size=batch_size,
+                                                           directory=path,
                                                            shuffle=True,
                                                            target_size=(IMG_HEIGHT, IMG_WIDTH),
                                                            class_mode='sparse',
-                                                           color_mode = 'grayscale')
+                                                           color_mode = 'grayscale',
+                                                           subset = 'training')
 
-# total_train = 0
-# path_train = 'Dataset/train'
-# for dir in os.listdir(path_train):
-#     total_train += len([name for name in os.listdir(os.path.join(path_train,dir))])
+validation_data_gen = image_generator.flow_from_directory(batch_size=batch_size,
+                                                           directory=path,
+                                                           shuffle=True,
+                                                           target_size=(IMG_HEIGHT, IMG_WIDTH),
+                                                           class_mode='sparse',
+                                                           color_mode = 'grayscale',
+                                                           subset = 'validation')
 
-val_data_gen = validation_image_generator.flow_from_directory(batch_size=batch_size,
-                                                              directory=validation_dir,
-                                                              target_size=(IMG_HEIGHT, IMG_WIDTH),
-                                                              class_mode='sparse',
-                                                              color_mode = 'grayscale')
-
-# total_val = 0
-# path_validation = 'Dataset/validation'
-# for dir in os.listdir(path_validation):
-#     total_val += len([name for name in os.listdir(os.path.join(path_validation,dir))])
 
 model = Sequential([
     Conv2D(16, 3, padding='same', activation='relu', input_shape=(IMG_HEIGHT, IMG_WIDTH ,1)),
@@ -70,7 +43,7 @@ model = Sequential([
     MaxPooling2D(),
     Flatten(),
     Dense(512, activation='relu'),
-    Dense(3, activation='softmax')
+    Dense(5, activation='softmax')
 ])
 
 model.compile(optimizer='adam',
@@ -79,11 +52,10 @@ model.compile(optimizer='adam',
 
 history = model.fit_generator(
     train_data_gen,
-    #steps_per_epoch=total_train // batch_size,
-    epochs=epochs,
-    validation_data=val_data_gen,
-    #validation_steps=total_val // batch_size
-)
+    steps_per_epoch = train_data_gen.samples // batch_size,
+    validation_data = validation_data_gen,
+    validation_steps = validation_data_gen.samples // batch_size,
+    epochs = epochs)
 
 model.save('pouet.model')
 
