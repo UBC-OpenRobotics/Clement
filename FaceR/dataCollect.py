@@ -7,6 +7,8 @@ cam.set(3,640)
 cam.set(4,480)
 
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+font = cv2.FONT_HERSHEY_SIMPLEX
+totIm = 50
 
 name = input('\n enter username and press <return>')
 path = "dataset/"+name
@@ -25,14 +27,17 @@ while(True):
         y = face[0][1]
         w = face[0][2]
         h = face[0][3]
-        cv2.imwrite(path+"/"+str(count)+".jpg",gray[y:y+h,x:x+w])
-    count+=1
+        cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
+        cv2.imwrite(path+"/"+str(count)+".jpg",img[y:y+h,x:x+w])
+        count+=1
+
+    cv2.putText(img, str(count)+"/"+str(totIm), (1,30), font, 1, (255,255,255), 2)
     cv2.imshow('image', img)
 
     k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
     if k == 27:
         break
-    elif count >= 200: # Take 30 face sample and stop video
+    elif count >= totIm: # Take 200 face sample and stop video
          break
 
 cam.release()
