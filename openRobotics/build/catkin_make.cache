@@ -1,0 +1,2 @@
+faceReco:pocketsphinx:ros_test
+-DCATKIN_DEVEL_PREFIX=/home/clement/Documents/OpenRobotic/ROS/openRobotics/devel -DCMAKE_INSTALL_PREFIX=/home/clement/Documents/OpenRobotic/ROS/openRobotics/install -G Unix Makefiles

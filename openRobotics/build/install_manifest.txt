@@ -1,0 +1,13 @@
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/_setup_util.py
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/env.sh
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/setup.bash
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/local_setup.bash
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/setup.sh
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/local_setup.sh
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/setup.zsh
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/local_setup.zsh
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/.rosinstall
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/lib/pkgconfig/faceReco.pc
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/share/faceReco/cmake/faceRecoConfig.cmake
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/share/faceReco/cmake/faceRecoConfig-version.cmake
+/home/clement/Documents/OpenRobotic/ROS/openRobotics/install/share/faceReco/package.xml

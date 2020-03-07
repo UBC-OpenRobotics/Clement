@@ -1,0 +1,8 @@
+prefix=/home/clement/Documents/OpenRobotic/ROS/openRobotics/devel
+
+Name: ros_test
+Description: Description of ros_test
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

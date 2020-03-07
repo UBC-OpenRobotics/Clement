@@ -1,0 +1,8 @@
+prefix=/home/clement/Documents/OpenRobotic/ROS/openRobotics/install
+
+Name: faceReco
+Description: Description of faceReco
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
