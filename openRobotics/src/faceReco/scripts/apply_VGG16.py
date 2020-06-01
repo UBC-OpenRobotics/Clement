@@ -21,6 +21,11 @@ from geometry_msgs.msg import Twist
 
 def change_target(data):
     navigateTo = data.data
+    body = False
+
+def follow_body(data):
+    navigateTo = data.data
+    body = True
 
 def callback(data):
     try:
@@ -29,33 +34,51 @@ def callback(data):
         print(e)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_detector.detectMultiScale(gray, 1.3, 5)
 
-    for (x,y,w,h) in faces:
-        global sess
-        global graph
-        with graph.as_default():
-            tf.keras.backend.set_session(sess)
+    if not body:
+        faces = face_detector.detectMultiScale(gray, 1.3, 5)
+
+        for (x,y,w,h) in faces:
+            global sess
+            global graph
+            with graph.as_default():
+                tf.keras.backend.set_session(sess)
+                cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
+                arr = cv2.resize(img[y:y+h,x:x+w],(224,224))
+                arr = image.img_to_array(arr)
+                arr = np.expand_dims(arr,axis=0)
+                arr = utils.preprocess_input(arr,version=1)
+                prediction = model.predict(arr)
+                prediction = prediction.reshape(1,1,2048)
+                finalPred = modelLin.predict(prediction)
+                if (names[np.argmax(finalPred)] == navigateTo):
+                    if((2*x+w)/2 > 2*(img.shape[0]/3)):
+                        vel_msg.angular.z = -0.5
+                        vel_msg.linear.x = 0
+                    elif((2*x+w)/2 < (img.shape[0]/3)):
+                        vel_msg.angular.z = 0.5
+                        vel_msg.linear.x = 0
+                    else:
+                        vel_msg.angular.z = 0
+                        vel_msg.linear.x = 0.5
+                    vel_pub.publish(vel_msg)
+            cv2.putText(img, names[np.argmax(finalPred)], (x+5,y-5), font, 1, (255,255,255), 2)
+
+    else:
+        bodies = body_detector.detectMultiScale(gray, 1.3, 5)
+        for (x,y,w,h) in bodies:
             cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
-            arr = cv2.resize(img[y:y+h,x:x+w],(224,224))
-            arr = image.img_to_array(arr)
-            arr = np.expand_dims(arr,axis=0)
-            arr = utils.preprocess_input(arr,version=1)
-            prediction = model.predict(arr)
-            prediction = prediction.reshape(1,1,2048)
-            finalPred = modelLin.predict(prediction)
-            if (names[np.argmax(finalPred)] == navigateTo):
-                if((2*x+w)/2 > 2*(img.shape[0]/3)):
-                    vel_msg.angular.z = -0.5
-                    vel_msg.linear.x = 0
-                elif((2*x+w)/2 < (img.shape[0]/3)):
-                    vel_msg.angular.z = 0.5
-                    vel_msg.linear.x = 0
-                else:
-                    vel_msg.angular.z = 0
-                    vel_msg.linear.x = 0.5
-                vel_pub.publish(vel_msg)
-        cv2.putText(img, names[np.argmax(finalPred)], (x+5,y-5), font, 1, (255,255,255), 2)
+            if((2*x+w)/2 > 2*(img.shape[0]/3)):
+                vel_msg.angular.z = -0.5
+                vel_msg.linear.x = 0
+            elif((2*x+w)/2 < (img.shape[0]/3)):
+                vel_msg.angular.z = 0.5
+                vel_msg.linear.x = 0
+            else:
+                vel_msg.angular.z = 0
+                vel_msg.linear.x = 0.5
+            vel_pub.publish(vel_msg)
+
 
     cv2.imshow('image', img)
     cv2.waitKey(3)
@@ -78,13 +101,16 @@ print(names)
 
 bridge = CvBridge()
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+body_detector = cv2.CascadeClassifier('haarcascade_fullbody_default.xml')
 image_sub = rospy.Subscriber("/image_raw",Image,callback)
-name_sub = rospy.Subscriber("/orders/follow",String,change_target)
+name_sub = rospy.Subscriber("/orders/find",String,change_target)
+follow_sub = rospy.Subscriber("/orders/follow",String,follow_body)
 
 vel_pub = rospy.Publisher('/turtle1/cmd_vel',Twist,queue_size=10)
 vel_msg = Twist()
 
 navigateTo = "Clement"
+body = False
 
 vel_msg.linear.x = 0
 vel_msg.linear.y = 0

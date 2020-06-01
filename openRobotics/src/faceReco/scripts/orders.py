@@ -8,17 +8,23 @@ import pickle
 
 
 def callback(data):
-    if "FOLLOW" in data.data:
+    if "FIND" in data.data:
+        print(data.data)
         count = 0
         while(count < len(names) and not (names[count].upper() in data.data)):
             count += 1
         if(count < len(names)):
-            orders_follow.publish(names[count])
+            orders_find.publish(names[count])
+
+    if "FOLLOW" in data.data:
+        print(data.data)
+        orders_follow.publish("follow body")
 
 name_file = open("names","rb")
 names = pickle.load(name_file)
 name_file.close()
 
+orders_find = rospy.Publisher('/orders/find',String,queue_size=10)
 orders_follow = rospy.Publisher('/orders/follow',String,queue_size=10)
 talk_sub = rospy.Subscriber('/grammar_data',String,callback)
 
